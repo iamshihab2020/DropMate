@@ -1,0 +1,3 @@
+tags:
+  perf:
+    skip: "Benchmarks. Run with: flutter test -t perf --run-skipped"

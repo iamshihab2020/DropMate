@@ -1,0 +1,23 @@
+DropMate
+Copyright 2026 Sheikh Shihab Hossain (https://github.com/iamshihab2020)
+
+This product was created by Sheikh Shihab Hossain.
+Original project: https://github.com/iamshihab2020/DropMate
+
+If you redistribute DropMate or a work based on it, in source or binary form,
+the Apache License 2.0 (section 4) requires you to keep this NOTICE file, keep
+the copyright and licence notices, and state which files you changed.
+
+"DropMate" and the DropMate logo are names of the original project. The
+licence does not grant permission to use them (section 6). A modified version
+must be published under a different name.
+
+Third-party components:
+- Flutter (https://flutter.dev), BSD-3-Clause licence.
+- Hind Siliguri font by Indian Type Foundry, SIL Open Font License 1.1 (assets/fonts/OFL.txt).
+- basic_utils, file_picker, launch_at_startup, nsd, pointycastle, tray_manager,
+  uuid, window_manager: MIT licence.
+- cryptography, desktop_drop: Apache License 2.0.
+- crypto, ffi, flutter_local_notifications, flutter_secure_storage,
+  mobile_scanner, path, path_provider, qr_flutter, win32: BSD-3-Clause licence.
+- sqflite, sqflite_common_ffi: BSD-2-Clause licence.

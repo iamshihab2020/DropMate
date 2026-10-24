@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in DropMate does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the chat with a paired person
+        2. Send a 2 GB video from the PC
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: DropMate version
+      description: In the name of the file you installed, for example DropMate-1.1.0-android.apk.
+      placeholder: "1.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Between which devices
+      options:
+        - PC to phone
+        - Phone to PC
+        - Phone to phone
+        - PC to PC
+        - Not about sending
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+  - type: input
+    id: phone
+    attributes:
+      label: Phone model and Android version
+      placeholder: Galaxy A54, Android 14
+  - type: textarea
+    id: network
+    attributes:
+      label: Network
+      description: Home router, office Wi-Fi, phone hotspot, guest network? Anything unusual, like a VPN.
