@@ -224,7 +224,7 @@ object Bridge {
         }
         // Only other apps' content; never a file:// path or our own provider, or a caller could
         // borrow DropMate's permissions to read its private files (confused deputy).
-        uris.retainAll { it.scheme == "content" && it.authority?.startsWith(app.packageName) != true }
+        uris.retainAll(::othersContent)
         if (uris.isEmpty()) return
         io.execute {
             val items = uris.mapNotNull { stat(it, null) }
@@ -232,6 +232,13 @@ object Bridge {
                 if (sharesReady) channel.invokeMethod("shared", items) else queuedShares.add(items)
             }
         }
+    }
+
+    /** A content:// link served by another app. "user@authority" forms are refused: they still reach our own provider. */
+    private fun othersContent(u: Uri): Boolean {
+        val auth = u.authority ?: return false
+        if (u.scheme != "content" || '@' in auth) return false
+        return app.packageManager.resolveContentProvider(auth, 0)?.packageName != app.packageName
     }
 
     @Suppress("DEPRECATION")
