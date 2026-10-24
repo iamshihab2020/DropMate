@@ -222,6 +222,9 @@ object Bridge {
             Intent.ACTION_SEND_MULTIPLE -> intent.getParcelableArrayListExtraCompat(Intent.EXTRA_STREAM)?.let { uris.addAll(it) }
             else -> return
         }
+        // Only other apps' content; never a file:// path or our own provider, or a caller could
+        // borrow DropMate's permissions to read its private files (confused deputy).
+        uris.retainAll { it.scheme == "content" && it.authority?.startsWith(app.packageName) != true }
         if (uris.isEmpty()) return
         io.execute {
             val items = uris.mapNotNull { stat(it, null) }
