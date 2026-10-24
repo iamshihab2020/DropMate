@@ -11,6 +11,8 @@
 ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4)
 ![Android](https://img.shields.io/badge/Android-8%2B-3ddc84)
 
+**[Website](https://iamshihab2020.github.io/DropMate/)** · **[Download](https://github.com/iamshihab2020/DropMate/releases/latest)**
+
 </div>
 
 DropMate is a messenger that only works on your own Wi-Fi. Pair with someone once, then chat with them and send them anything: a 4 GB movie, a folder of photos, an app, a document. Files go straight from one device to the other at Wi-Fi speed. Nothing is uploaded anywhere, and there is no account to create.

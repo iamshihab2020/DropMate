@@ -49,3 +49,6 @@ app.*.map.json
 
 # Private product spec, not published
 PRD.md
+
+# Local design-tool settings
+.impeccable/

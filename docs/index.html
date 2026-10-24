@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DropMate: send files over your own Wi-Fi</title>
+<meta name="description" content="DropMate is a free, open-source messenger for your home Wi-Fi. Pair your family's phones and PCs once, then chat and send photos, videos and files of any size. No internet, no cloud, no account. Windows and Android.">
+<meta name="theme-color" content="#0A1A2F">
+<link rel="icon" href="assets/icon.png">
+<meta property="og:title" content="DropMate: send files over your own Wi-Fi">
+<meta property="og:description" content="Chat and send files to the people in your home. No internet, no cloud, no account. Free and open source for Windows and Android.">
+<meta property="og:image" content="https://iamshihab2020.github.io/DropMate/social-preview.png">
+<meta property="og:url" content="https://iamshihab2020.github.io/DropMate/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --drop: #0A6CFF;
+  --lagoon: #00C9B1;
+  --lagoon-ink: #00A592;
+  --mist: #EEF4FA;
+  --deep: #0A1A2F;
+  --harbor: #13263F;
+  --harbor-2: #1B3352;
+  --signal: #E5484D;
+  --ink: #0A1A2F;
+  --ink-2: #44566E;
+  --line: #D5E1EE;
+  --white: #FFFFFF;
+  --on-dark: #E6EEF7;
+  --on-dark-2: #9BB0C8;
+  --radius: 22px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --bounce: cubic-bezier(.34, 1.56, .64, 1);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--mist);
+  color: var(--ink);
+  font: 400 18px/1.6 "Hind Siliguri", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--drop); }
+:focus-visible { outline: 3px solid var(--lagoon); outline-offset: 3px; border-radius: 8px; }
+h1, h2, h3 { font-weight: 700; line-height: 1.12; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: clamp(32px, 4.6vw, 54px); }
+h3 { font-size: 24px; line-height: 1.25; }
+p { margin: 0; }
+.wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
+.dark { background: var(--deep); color: var(--on-dark); }
+.dark .muted { color: var(--on-dark-2); }
+.muted { color: var(--ink-2); }
+.lede { font-size: clamp(18px, 1.6vw, 21px); max-width: 62ch; }
+section { position: relative; }
+.sec { padding: clamp(80px, 11vw, 140px) 0; }
+.sec-head { max-width: 760px; margin-bottom: clamp(40px, 6vw, 72px); }
+.sec-head p { margin-top: 18px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 26px; border-radius: 999px; border: 0;
+  font: 600 18px/1 "Hind Siliguri", sans-serif; text-decoration: none; cursor: pointer;
+  transition: transform .25s var(--bounce), box-shadow .25s;
+}
+.btn svg { width: 22px; height: 22px; flex: none; }
+.btn-primary { background: var(--drop); color: #fff; box-shadow: 0 10px 24px -12px rgba(0,0,0,.45); }
+.btn-primary::before {
+  /* hover: the button fills with water from the bottom */
+  content: ""; position: absolute; inset: auto -20% -10% -20%; height: 0; z-index: -1;
+  background: var(--lagoon); border-radius: 45% 45% 0 0;
+  transition: height .55s var(--ease);
+}
+.btn-primary:hover::before { height: 130%; }
+.btn-primary:hover { transform: translateY(-2px); }
+.btn-ghost { background: transparent; color: inherit; box-shadow: inset 0 0 0 2px currentColor; }
+.btn-ghost:hover { transform: translateY(-2px); }
+.dark .btn-ghost { color: var(--on-dark); }
+
+/* ---------- nav ---------- */
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 50;
+  transition: background .3s, box-shadow .3s, transform .35s var(--ease);
+}
+.nav.scrolled { background: rgba(10,26,47,.86); backdrop-filter: blur(14px); box-shadow: 0 1px 0 rgba(255,255,255,.06); }
+.nav .wrap { display: flex; align-items: center; gap: 28px; height: 72px; }
+.brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 700; font-size: 22px; }
+.brand img { width: 34px; height: 34px; }
+.nav-links { display: flex; gap: 26px; margin-left: auto; }
+.nav-links a { color: var(--on-dark-2); text-decoration: none; font-weight: 500; font-size: 16px; transition: color .2s; }
+.nav-links a:hover { color: #fff; }
+.nav .btn { padding: 11px 20px; font-size: 16px; }
+.gh { color: var(--on-dark); display: inline-flex; }
+.gh svg { width: 26px; height: 26px; }
+@media (max-width: 860px) { .nav-links { display: none; } .nav .wrap { gap: 14px; } .nav .btn { margin-left: auto; } }
+
+/* ---------- hero ---------- */
+.hero { padding: 130px 0 0; overflow: hidden; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1.08fr; gap: 40px; align-items: center; }
+.hero h1 { font-size: clamp(42px, 6.4vw, 80px); color: #fff; }
+.hero h1 .w { display: inline-block; opacity: 0; transform: translateY(40px) rotate(4deg); animation: word .8s var(--ease) forwards; }
+@keyframes word { to { opacity: 1; transform: none; } }
+.hero .lede { margin-top: 24px; color: var(--on-dark-2); }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 36px; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 30px; color: var(--on-dark-2); font-size: 15px; }
+.facts span { display: inline-flex; align-items: center; gap: 8px; }
+.facts svg { width: 18px; height: 18px; color: var(--lagoon); }
+.fade-up { opacity: 0; transform: translateY(24px); animation: word .9s var(--ease) forwards; }
+@media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; } .hero { padding-top: 110px; } .wave-edge { margin-top: 16px; height: 60px; } }
+
+/* hero scene: PC window + phone, scaled to fit */
+.scene-box { position: relative; width: 100%; aspect-ratio: 660 / 540; }
+.scene { position: absolute; left: 0; top: 0; width: 660px; height: 540px; transform-origin: 0 0; }
+.air { position: absolute; inset: 0; pointer-events: none; }
+.air .ring { fill: none; stroke: var(--lagoon); stroke-width: 2; opacity: 0; transform-origin: 330px 260px; }
+.on .air .ring { animation: air 3.6s ease-out infinite; }
+.air .ring:nth-child(2) { animation-delay: 1.2s; }
+.air .ring:nth-child(3) { animation-delay: 2.4s; }
+@keyframes air { 0% { opacity: .35; transform: scale(.2); } 100% { opacity: 0; transform: scale(1.4); } }
+
+.win {
+  position: absolute; left: 0; top: 70px; width: 396px; height: 330px;
+  background: var(--harbor); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.07);
+}
+.win-bar { height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 14px; background: #0E1F35; }
+.win-bar i { width: 10px; height: 10px; border-radius: 50%; background: #2A4466; }
+.win-bar b { margin-left: 10px; font-size: 13px; font-weight: 600; color: var(--on-dark-2); }
+.win-body { display: grid; grid-template-columns: 120px 1fr; height: calc(100% - 34px); }
+.win-side { background: #10223A; padding: 14px 10px; display: flex; flex-direction: column; gap: 12px; }
+.mini-person { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--on-dark); font-weight: 600; }
+.mini-person.sel { background: rgba(10,108,255,.18); border-radius: 10px; padding: 5px; margin: -5px; }
+.chat { position: relative; padding: 14px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; overflow: hidden; }
+
+.av {
+  position: relative; flex: none; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff;
+}
+.av.ring::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; padding: 2px;
+  background: linear-gradient(135deg, var(--drop), var(--lagoon));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.av.pulse::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--lagoon); animation: pulse 2.4s ease-out infinite; }
+@keyframes pulse { from { transform: scale(1); opacity: .7; } to { transform: scale(2); opacity: 0; } }
+
+.bub { max-width: 80%; padding: 7px 12px; border-radius: 16px; font-size: 13px; line-height: 1.35; }
+.bub.me { align-self: flex-end; background: var(--drop); color: #fff; border-bottom-right-radius: 5px; }
+.bub.them { align-self: flex-start; background: var(--harbor-2); color: var(--on-dark); border-bottom-left-radius: 5px; }
+.bub small { opacity: .75; font-size: 10px; margin-left: 6px; }
+
+/* the file card with liquid fill */
+.card {
+  position: relative; overflow: hidden; border-radius: 16px; padding: 11px 12px;
+  background: var(--harbor-2); color: var(--on-dark);
+  box-shadow: inset 0 0 0 1.2px rgba(10,108,255,.45); width: 232px;
+}
+.card.them { box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+.card .water { position: absolute; inset: 0; pointer-events: none; }
+.card .row { position: relative; display: flex; gap: 10px; align-items: center; }
+.ficon { position: relative; flex: none; width: 36px; height: 36px; border-radius: 11px; background: rgba(10,108,255,.2); display: grid; place-items: center; color: #6FA8FF; }
+.ficon svg { width: 20px; height: 20px; }
+.ficon .ok { position: absolute; right: -6px; bottom: -6px; width: 18px; height: 18px; border-radius: 50%; background: var(--lagoon-ink);
+  display: grid; place-items: center; transform: scale(0); transition: transform .45s var(--bounce); }
+.ficon .ok svg { width: 12px; height: 12px; color: #fff; }
+.done .ficon .ok { transform: scale(1); }
+.card .name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.card .meta { font-size: 11px; color: var(--on-dark-2); }
+.card .pct { margin-left: auto; font-size: 22px; font-weight: 700; color: #6FA8FF; font-variant-numeric: tabular-nums; }
+.card .status { position: relative; margin-top: 7px; font-size: 11px; font-weight: 500; color: var(--on-dark-2); display: flex; align-items: center; gap: 4px; min-height: 16px; }
+.done .status { color: var(--lagoon); }
+.ticks { margin-left: auto; display: inline-flex; color: var(--on-dark-2); transition: color .4s; }
+.ticks svg { width: 15px; height: 15px; }
+.ticks.seen { color: var(--lagoon); }
+
+.phone {
+  position: absolute; right: 0; top: 0; width: 250px; height: 520px; border-radius: 40px;
+  background: #050D18; padding: 10px; box-shadow: 0 50px 90px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08);
+}
+.phone-screen { position: relative; height: 100%; border-radius: 31px; overflow: hidden; background: var(--harbor); display: flex; flex-direction: column; }
+.phone-notch { position: absolute; top: 9px; left: 50%; width: 70px; height: 18px; margin-left: -35px; background: #050D18; border-radius: 10px; z-index: 3; }
+.phone-head { display: flex; align-items: center; gap: 9px; padding: 38px 14px 10px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.phone-head b { font-size: 14px; color: #fff; display: block; line-height: 1.1; }
+.phone-head small { font-size: 10px; color: var(--lagoon); }
+.phone .chat { flex: 1; }
+.composer { display: flex; align-items: center; gap: 7px; padding: 9px 10px 16px; }
+.composer i { flex: 1; height: 30px; border-radius: 15px; background: var(--harbor-2); }
+.composer b { width: 30px; height: 30px; border-radius: 50%; background: rgba(10,108,255,.25); }
+
+.photos { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; width: 200px; border-radius: 16px; overflow: hidden; align-self: flex-start; }
+.ph { aspect-ratio: 1; position: relative; overflow: hidden; }
+.ph .sun { position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; top: 18%; right: 18%; }
+.ph .hill { position: absolute; left: -20%; right: -20%; bottom: -30%; height: 70%; border-radius: 50% 50% 0 0; }
+.ph .hill.b { left: 20%; right: -50%; bottom: -40%; }
+.ph .more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.45); color: #fff; font-weight: 700; font-size: 22px; }
+.p1 { background: linear-gradient(#FFB38A, #FF7A7A); } .p1 .sun { background: #FFF3C4; } .p1 .hill { background: #5B3B6E; } .p1 .hill.b { background: #2E2448; }
+.p2 { background: linear-gradient(#8FD3FF, #3E8EF7); } .p2 .sun { background: #fff; } .p2 .hill { background: #2DB37C; } .p2 .hill.b { background: #187A55; }
+.p3 { background: linear-gradient(#1D2B64, #6A4C93); } .p3 .sun { background: #F8F3D4; width: 18%; } .p3 .hill { background: #121A3A; } .p3 .hill.b { background: #0B1029; }
+.p4 { background: linear-gradient(#FFE29A, #FFA751); } .p4 .sun { background: #fff; } .p4 .hill { background: #C9623F; } .p4 .hill.b { background: #8E3B2A; }
+
+.flight { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.phone .card { width: auto; align-self: stretch; padding: 10px; }
+.phone .card .pct { font-size: 18px; }
+.flight path { fill: none; stroke: rgba(0,201,177,.35); stroke-width: 2; stroke-dasharray: 3 9; }
+.flight circle { fill: var(--lagoon); }
+
+.rise { animation: rise .55s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.94); } to { opacity: 1; transform: none; } }
+.pop { animation: pop .5s var(--bounce) both; }
+@keyframes pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+
+.wave-edge { display: block; width: 100%; height: 90px; margin-top: 80px; }
+.wave-edge path { fill: var(--mist); }
+
+/* ---------- reveal on scroll ---------- */
+.rv { opacity: 0; transform: translateY(36px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+.rv.in { opacity: 1; transform: none; }
+.rv.d1 { transition-delay: .08s; } .rv.d2 { transition-delay: .16s; } .rv.d3 { transition-delay: .24s; }
+
+/* ---------- marquee of promises ---------- */
+.promise { background: var(--drop); color: #fff; overflow: hidden; padding: 18px 0; }
+.track { display: flex; gap: 48px; width: max-content; animation: slide 32s linear infinite; font-size: clamp(20px, 2.4vw, 28px); font-weight: 700; }
+.track span { display: inline-flex; align-items: center; gap: 48px; white-space: nowrap; }
+.track span::after { content: ""; width: 12px; height: 16px; background: var(--lagoon); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; transform: rotate(180deg); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* ---------- steps ---------- */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; counter-reset: s; }
+.step { background: var(--white); border-radius: var(--radius); padding: 30px; border: 1px solid var(--line); }
+.step .n { width: 44px; height: 44px; border-radius: 50%; background: var(--deep); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 20px; margin-bottom: 22px; }
+.step p { margin-top: 10px; color: var(--ink-2); }
+.step .viz { height: 150px; margin-top: 26px; border-radius: 16px; background: var(--mist); display: grid; place-items: center; overflow: hidden; position: relative; }
+@media (max-width: 900px) { .steps { grid-template-columns: 1fr; } }
+
+.emoji-pair { display: flex; gap: 16px; align-items: center; }
+.emoji-screen { background: var(--deep); border-radius: 14px; padding: 12px 12px; display: grid; grid-template-columns: repeat(2, 30px); gap: 6px; }
+.emoji-screen span { font-size: 22px; line-height: 30px; text-align: center; opacity: 0; transform: scale(.3); }
+.in .emoji-screen span { animation: pop .5s var(--bounce) forwards; }
+.emoji-match { width: 34px; height: 34px; border-radius: 50%; background: var(--lagoon-ink); display: grid; place-items: center; transform: scale(0); }
+.emoji-match svg { width: 20px; height: 20px; color: #fff; }
+.in .emoji-match { animation: pop .5s var(--bounce) 1.5s forwards; }
+
+.dl-viz { display: flex; gap: 14px; align-items: flex-end; }
+.dl-viz .dev { background: var(--deep); border-radius: 10px; }
+.dl-viz .pc { width: 110px; height: 72px; }
+.dl-viz .ph2 { width: 46px; height: 88px; border-radius: 12px; }
+.dl-viz .dev { position: relative; overflow: hidden; }
+.dl-viz .dev::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: var(--lagoon); opacity: .85; }
+.in .dl-viz .dev::after { animation: fill 2.2s var(--ease) .4s forwards; }
+.in .dl-viz .ph2::after { animation-delay: .9s; }
+@keyframes fill { to { height: 100%; } }
+.dl-viz .dev img { position: absolute; inset: 0; margin: auto; width: 30px; z-index: 1; }
+
+.send-viz { position: relative; width: 100%; height: 100%; }
+.send-viz .d { position: absolute; top: 50%; width: 56px; height: 56px; margin-top: -28px; border-radius: 16px; background: var(--deep); display: grid; place-items: center; color: #fff; }
+.send-viz .d svg { width: 28px; height: 28px; }
+.send-viz .d.a { left: 12%; } .send-viz .d.b { right: 12%; }
+.send-viz .f { position: absolute; top: 50%; left: 12%; width: 30px; height: 36px; margin: -18px 0 0 13px; border-radius: 6px; background: var(--drop); opacity: 0; }
+.in .send-viz .f { animation: hop 2.4s var(--ease) .3s infinite; }
+@keyframes hop {
+  0% { opacity: 0; transform: translate(0, 0) scale(.6); }
+  15% { opacity: 1; transform: translate(0, -10px) scale(1); }
+  70% { opacity: 1; transform: translate(calc(var(--w, 200px)), -10px) scale(1); }
+  85%, 100% { opacity: 0; transform: translate(calc(var(--w, 200px)), 0) scale(.6); }
+}
+
+/* ---------- feature rows ---------- */
+.feat { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 90px); align-items: center; }
+.feat + .feat { margin-top: clamp(80px, 10vw, 130px); }
+.feat.flip .feat-text { order: 2; }
+.feat-text h3 { font-size: clamp(28px, 3.2vw, 40px); }
+.feat-text p { margin-top: 16px; color: var(--ink-2); }
+.feat-text ul { margin: 20px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.feat-text li { display: flex; gap: 12px; color: var(--ink-2); }
+.feat-text li::before { content: ""; flex: none; width: 10px; height: 13px; margin-top: 8px; background: var(--lagoon); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; transform: rotate(180deg); }
+.stage { position: relative; min-height: 400px; border-radius: 28px; background: var(--deep); overflow: hidden; display: grid; place-items: center; padding: 30px; }
+@media (max-width: 900px) { .feat { grid-template-columns: 1fr; } .feat.flip .feat-text { order: 0; } .stage { min-height: 360px; } }
+
+/* chat stage */
+.chat-demo { width: min(330px, 100%); display: flex; flex-direction: column; gap: 10px; }
+.chat-demo .bub { font-size: 16px; padding: 10px 15px; border-radius: 20px; max-width: 85%; opacity: 0; }
+.chat-demo .bub.me { border-bottom-right-radius: 6px; display: flex; align-items: flex-end; gap: 8px; }
+.chat-demo .bub.them { border-bottom-left-radius: 6px; }
+.chat-demo .bub.show { animation: rise .5s var(--ease) forwards; }
+.chat-demo .ticks { color: rgba(255,255,255,.75); }
+.chat-demo .ticks.seen { color: #9AF7EA; }
+.chat-demo .seen-note { align-self: flex-end; font-size: 13px; color: var(--lagoon); opacity: 0; transition: opacity .4s; }
+.chat-demo .seen-note.show { opacity: 1; }
+
+/* gallery stage */
+.gal { position: relative; width: min(360px, 100%); }
+.gal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; border-radius: 18px; overflow: hidden; }
+.gal-grid .ph { transform: scale(.4); opacity: 0; }
+.in .gal-grid .ph { animation: pop .55s var(--bounce) forwards; }
+.viewer { position: absolute; inset: -30px; border-radius: 22px; background: #000; display: grid; place-items: center; opacity: 0; transform: scale(.6); transition: opacity .45s, transform .55s var(--ease); pointer-events: none; }
+.viewer.open { opacity: 1; transform: scale(1); }
+.viewer .big { width: 82%; aspect-ratio: 4/3; border-radius: 6px; overflow: hidden; transition: transform .5s var(--ease); }
+.viewer .count { position: absolute; top: 16px; left: 20px; color: #fff; font-size: 14px; font-weight: 600; }
+.viewer .dots { position: absolute; bottom: 18px; display: flex; gap: 6px; }
+.viewer .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.35); transition: background .3s, transform .3s; }
+.viewer .dots i.on { background: #fff; transform: scale(1.3); }
+
+/* buzz stage */
+.buzz { text-align: center; }
+.buzz-phone { position: relative; width: 170px; height: 310px; margin: 0 auto; border-radius: 30px; background: #050D18; padding: 8px; }
+.buzz-phone .sc { height: 100%; border-radius: 23px; background: rgba(10,26,47,.96); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #fff; padding: 14px; }
+.buzz-phone .big-av { position: relative; width: 70px; height: 70px; border-radius: 50%; background: #E0679A; display: grid; place-items: center; font-weight: 700; font-size: 28px; }
+.buzz-phone .big-av::before, .buzz-phone .big-av::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--lagoon); animation: pulse 1.6s ease-out infinite; }
+.buzz-phone .big-av::after { animation-delay: .8s; }
+.buzz-phone b { font-size: 14px; line-height: 1.25; }
+.buzz-phone .stop { background: #C42B31; border-radius: 999px; padding: 6px 22px; font-size: 13px; font-weight: 600; }
+.buzzing .buzz-phone { animation: shake .5s linear infinite; }
+@keyframes shake { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-5deg) translateX(-3px); } 40% { transform: rotate(5deg) translateX(3px); } 60% { transform: rotate(-4deg); } 80% { transform: rotate(4deg); } }
+.waves-out { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.waves-out i { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 2px solid rgba(229,72,77,.5); opacity: 0; }
+.buzzing .waves-out i { animation: air 2s ease-out infinite; }
+.buzzing .waves-out i:nth-child(2) { animation-delay: .66s; }
+.buzzing .waves-out i:nth-child(3) { animation-delay: 1.33s; }
+.buzz-label { margin-top: 22px; color: var(--on-dark-2); font-size: 15px; }
+.vol { display: inline-flex; gap: 3px; align-items: flex-end; height: 18px; margin-left: 6px; vertical-align: -3px; }
+.vol i { width: 4px; background: var(--signal); border-radius: 2px; height: 30%; }
+.buzzing .vol i { animation: eq .5s ease-in-out infinite alternate; }
+.vol i:nth-child(2) { animation-delay: .1s !important; } .vol i:nth-child(3) { animation-delay: .2s !important; } .vol i:nth-child(4) { animation-delay: .3s !important; }
+@keyframes eq { to { height: 100%; } }
+
+/* own devices stage */
+.mesh { position: relative; width: min(380px, 100%); aspect-ratio: 1.25; }
+.mesh svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mesh .lines path { fill: none; stroke: rgba(111,168,255,.35); stroke-width: 2; stroke-dasharray: 5 7; animation: dash 1.4s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -24; } }
+.node { position: absolute; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 8px; color: var(--on-dark); font-size: 14px; font-weight: 600; }
+.node .box { background: var(--harbor-2); border-radius: 16px; display: grid; place-items: center; color: #6FA8FF; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.node .box svg { width: 50%; height: 50%; }
+.node.lap .box { width: 96px; height: 70px; }
+.node.ph3 .box { width: 52px; height: 84px; border-radius: 14px; }
+.syncdot { position: absolute; width: 10px; height: 10px; margin: -5px; border-radius: 50%; background: var(--lagoon); offset-rotate: 0deg; }
+
+/* small features */
+.mini-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: clamp(80px, 10vw, 130px); }
+.mini { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; transition: transform .35s var(--bounce), box-shadow .35s; }
+.mini:hover { transform: translateY(-6px); box-shadow: 0 24px 50px -28px rgba(10,26,47,.35); }
+.mini h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; line-height: 1.25; }
+.mini h3 svg { flex: none; width: 26px; height: 26px; color: var(--drop); }
+.mini p { margin-top: 8px; color: var(--ink-2); font-size: 16px; }
+@media (max-width: 1000px) { .mini-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .mini-grid { grid-template-columns: 1fr; } }
+
+/* ---------- speed ---------- */
+.speed-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+@media (max-width: 900px) { .speed-grid { grid-template-columns: 1fr; } }
+.chunks { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+.chunk { position: relative; aspect-ratio: 1; border-radius: 10px; background: var(--harbor-2); overflow: hidden; }
+.chunk::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--h, 0%); background: linear-gradient(var(--lagoon), #00A08E); transition: height .1s linear; }
+.chunk.ok::before { height: 100%; background: var(--lagoon-ink); }
+.chunk svg { position: absolute; inset: 0; margin: auto; width: 55%; height: 55%; color: #fff; transform: scale(0); transition: transform .4s var(--bounce); }
+.chunk.ok svg { transform: scale(1); }
+.chunk-legend { display: flex; justify-content: space-between; margin-top: 18px; font-size: 15px; color: var(--on-dark-2); font-variant-numeric: tabular-nums; }
+.chunk-legend b { color: #fff; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 30px 24px; margin-top: 44px; }
+.stat b { display: block; font-size: clamp(40px, 5vw, 60px); line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
+.stat span { display: block; margin-top: 8px; color: var(--on-dark-2); font-size: 16px; }
+
+/* ---------- privacy ---------- */
+.priv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+@media (max-width: 900px) { .priv-grid { grid-template-columns: 1fr; } }
+.house { width: 100%; max-width: 520px; margin-inline: auto; display: block; overflow: visible; }
+.house .wall { fill: var(--white); stroke: var(--deep); stroke-width: 3; }
+.house .roof { fill: none; stroke: var(--deep); stroke-width: 3; stroke-linejoin: round; }
+.house .link { fill: none; stroke: var(--drop); stroke-width: 3; stroke-dasharray: 6 8; animation: dash 1s linear infinite; }
+.house .cloud { fill: #E4ECF5; stroke: #B8C7D8; stroke-width: 2; }
+.house .blocked { stroke: var(--signal); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 60; stroke-dashoffset: 60; }
+.in .house .blocked { animation: draw .6s ease-out 1s forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.house .tried { fill: none; stroke: #B8C7D8; stroke-width: 2.5; stroke-dasharray: 4 7; }
+.house .dev { fill: var(--deep); }
+.house .wifi path { fill: none; stroke: var(--lagoon); stroke-width: 4; stroke-linecap: round; opacity: .2; }
+.in .house .wifi path { animation: wifi 2s ease-in-out infinite; }
+.house .wifi path:nth-child(2) { animation-delay: .25s !important; } .house .wifi path:nth-child(3) { animation-delay: .5s !important; }
+@keyframes wifi { 0%, 100% { opacity: .2; } 40% { opacity: 1; } }
+.priv-list { display: grid; gap: 22px; margin-top: 34px; }
+.priv-item { display: flex; gap: 16px; }
+.priv-item .ic { flex: none; width: 46px; height: 46px; border-radius: 14px; background: var(--deep); color: var(--lagoon); display: grid; place-items: center; }
+.priv-item .ic svg { width: 24px; height: 24px; }
+.priv-item h3 { font-size: 19px; }
+.priv-item p { color: var(--ink-2); font-size: 16px; margin-top: 4px; }
+
+/* ---------- download ---------- */
+.dl { text-align: center; overflow: hidden; }
+.dl h2 { color: #fff; }
+.dl .lede { margin: 18px auto 0; color: var(--on-dark-2); }
+.dl-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 380px)); justify-content: center; gap: 22px; margin-top: 56px; text-align: left; }
+@media (max-width: 760px) { .dl-cards { grid-template-columns: 1fr; } }
+.dl-card { position: relative; overflow: hidden; isolation: isolate; border-radius: 26px; padding: 32px; background: var(--harbor); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); color: var(--on-dark); text-decoration: none; display: block; transition: transform .35s var(--bounce); }
+.dl-card:hover { transform: translateY(-6px); }
+.dl-card .water { position: absolute; inset: 0; z-index: -1; }
+.dl-card h3 { display: flex; align-items: center; gap: 12px; color: #fff; font-size: 30px; }
+.dl-card h3 svg { width: 32px; height: 32px; }
+.dl-card p { margin-top: 6px; color: var(--on-dark-2); font-size: 16px; }
+.dl-card .file { margin-top: 22px; display: flex; align-items: center; gap: 10px; font-weight: 600; color: #fff; }
+.dl-card .file svg { width: 22px; height: 22px; color: var(--lagoon); transition: transform .35s var(--bounce); }
+.dl-card:hover .file svg { transform: translateY(4px); }
+.dl-more { margin-top: 30px; color: var(--on-dark-2); font-size: 16px; }
+.dl-more a { color: var(--on-dark); }
+.install { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 782px; margin: 56px auto 0; text-align: left; }
+@media (max-width: 760px) { .install { grid-template-columns: 1fr; } }
+.install div { border-radius: 20px; padding: 24px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); }
+.install h3 { margin: 0 0 10px; color: #fff; font-size: 18px; }
+.install ol { margin: 0; padding-left: 20px; color: var(--on-dark-2); font-size: 15.5px; display: grid; gap: 6px; }
+.install b { color: var(--on-dark); }
+
+/* ---------- faq ---------- */
+.faq { max-width: 860px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; padding: 24px 50px 24px 0; font-size: 21px; font-weight: 600; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; position: absolute; right: 8px; top: 50%; width: 14px; height: 14px; margin-top: -10px; border-right: 3px solid var(--drop); border-bottom: 3px solid var(--drop); transform: rotate(45deg); transition: transform .35s var(--bounce); }
+.faq details[open] summary::after { transform: rotate(225deg); margin-top: -2px; }
+.faq .a { padding: 0 0 24px; color: var(--ink-2); max-width: 70ch; animation: rise .4s var(--ease); }
+.faq .a p + p { margin-top: 10px; }
+
+/* ---------- open source + footer ---------- */
+.oss { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; background: var(--white); border-radius: 30px; padding: clamp(30px, 5vw, 60px); border: 1px solid var(--line); }
+@media (max-width: 860px) { .oss { grid-template-columns: 1fr; } }
+.oss p { margin-top: 14px; color: var(--ink-2); }
+.oss .btns { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.oss .btn-ghost { color: var(--deep); }
+.code { background: var(--deep); color: var(--on-dark); border-radius: 18px; padding: 22px 24px; font: 500 15px/1.75 ui-monospace, "Cascadia Code", Consolas, monospace; overflow-x: auto; }
+.code .c { color: var(--on-dark-2); }
+.code .k { color: var(--lagoon); }
+footer { padding: 60px 0 50px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 20px 40px; align-items: center; justify-content: space-between; }
+footer nav { display: flex; flex-wrap: wrap; gap: 22px; }
+footer a { color: var(--on-dark-2); text-decoration: none; font-size: 15px; }
+footer a:hover { color: #fff; }
+footer small { color: var(--on-dark-2); font-size: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; scroll-behavior: auto !important; }
+  .rv { opacity: 1; transform: none; }
+  .track { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- reusable icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-checks" viewBox="0 0 24 24"><path d="M2 12.5l4.5 4.5L15 8.5M10 16.5l.5.5L20 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="2" fill="currentColor"/><path d="M4 18l5-5 4 4 3-3 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 19h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 9a14 14 0 0119 0M6 12.5a9 9 0 0112 0M9.3 16a4.4 4.4 0 015.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 12l8-8M16 7l2.5 2.5M14 9l2 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 00.8-7.9A6 6 0 006.3 9 4.5 4.5 0 007 18z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 3l18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6L12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6.5 11l5.5 5.5 5.5-5.5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6l1-8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-1V4a1.5 1.5 0 013 0v6m0-1V5.5a1.5 1.5 0 013 0V14c0 4-2.5 7-6.5 7-2.6 0-4-1.3-5.6-3.6L4.3 14a1.6 1.6 0 012.6-1.8L8 13.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lang" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c2.5 2.6 3.5 5.6 3.5 9s-1 6.4-3.5 9c-2.5-2.6-3.5-5.6-3.5-9s1-6.4 3.5-9z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-resume" viewBox="0 0 24 24"><path d="M20 12a8 8 0 11-2.3-5.7M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h4l2 2.5h8a2 2 0 012 2V17a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 00-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.4-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.8 1a9.7 9.7 0 015 0c1.9-1.3 2.8-1 2.8-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9V21c0 .3.2.6.7.5A10 10 0 0012 2z"/></symbol>
+    <symbol id="i-windows" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.3l7.4-1v7.2H3V5.3zm8.4-1.2L21 2.8v8.7h-9.6V4.1zM3 12.5h7.4v7.2L3 18.7v-6.2zm8.4 0H21v8.7l-9.6-1.3v-7.4z"/></symbol>
+    <symbol id="i-android" viewBox="0 0 24 24"><path fill="currentColor" d="M17.5 9.3l1.6-2.8a.4.4 0 00-.7-.4l-1.6 2.8A9.8 9.8 0 0012 8a9.8 9.8 0 00-4.8.9L5.6 6.1a.4.4 0 00-.7.4l1.6 2.8A8.6 8.6 0 002 16h20a8.6 8.6 0 00-4.5-6.7zM7.5 13.3a1 1 0 110-2 1 1 0 010 2zm9 0a1 1 0 110-2 1 1 0 010 2z"/></symbol>
+  </defs>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/icon.png" alt="">DropMate</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#speed">Speed</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="gh" href="https://github.com/iamshihab2020/DropMate" aria-label="DropMate on GitHub"><svg><use href="#i-github"/></svg></a>
+    <a class="btn btn-primary" href="#download">Download</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- ================= HERO ================= -->
+<section class="hero dark">
+  <div class="wrap hero-grid">
+    <div>
+      <h1 aria-label="Send it across the room, not across the internet.">
+        <span class="w" style="animation-delay:.05s">Send</span> <span class="w" style="animation-delay:.12s">it</span> <span class="w" style="animation-delay:.19s">across</span> <span class="w" style="animation-delay:.26s">the</span> <span class="w" style="animation-delay:.33s">room,</span> <span class="w" style="animation-delay:.45s">not</span> <span class="w" style="animation-delay:.52s">across</span> <span class="w" style="animation-delay:.59s">the</span> <span class="w" style="animation-delay:.66s">internet.</span>
+      </h1>
+      <p class="lede fade-up" style="animation-delay:.8s">DropMate is a free messenger for your home Wi-Fi. Pair your family's phones and PCs once, then chat and send photos, videos and files of any size, straight from one device to the other.</p>
+      <div class="hero-cta fade-up" style="animation-delay:.95s">
+        <a class="btn btn-primary" id="hero-dl" href="#download"><svg><use href="#i-down"/></svg><span>Download DropMate</span></a>
+        <a class="btn btn-ghost" href="https://github.com/iamshihab2020/DropMate"><svg><use href="#i-github"/></svg>View source</a>
+      </div>
+      <div class="facts fade-up" style="animation-delay:1.1s">
+        <span><svg><use href="#i-windows"/></svg>Windows 10 and 11</span>
+        <span><svg><use href="#i-android"/></svg>Android 8 or newer</span>
+        <span><svg><use href="#i-cloud-off"/></svg>Works with no internet</span>
+      </div>
+    </div>
+
+    <div class="scene-box fade-up" style="animation-delay:.4s" aria-label="Animation: a PC sends 128 photos to a phone over Wi-Fi" role="img">
+      <div class="scene" id="scene">
+        <svg class="air" viewBox="0 0 660 540"><circle class="ring" cx="330" cy="260" r="260"/><circle class="ring" cx="330" cy="260" r="260"/><circle class="ring" cx="330" cy="260" r="260"/></svg>
+
+        <div class="win">
+          <div class="win-bar"><i></i><i></i><i></i><b>DropMate</b></div>
+          <div class="win-body">
+            <div class="win-side">
+              <div class="mini-person sel"><span class="av ring pulse" style="background:#E0679A">M</span>Mom</div>
+              <div class="mini-person"><span class="av" style="background:#7A5AF8">S</span>Sister</div>
+              <div class="mini-person"><span class="av" style="background:#E5484D">❤</span>Love</div>
+            </div>
+            <div class="chat" id="pc-chat">
+              <div class="bub them">Can you send the Eid photos?<small>9:41</small></div>
+              <div class="bub me">Sending all of them now<small>9:42</small></div>
+            </div>
+          </div>
+        </div>
+
+        <svg class="flight" viewBox="0 0 660 540"><path id="arc" d="M300 250 C 380 120, 470 120, 520 230"/><g id="drops"></g></svg>
+
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-notch"></div>
+            <div class="phone-head"><span class="av ring" style="background:#0A6CFF">S</span><div><b>Shihab</b><small>Online on Laptop</small></div></div>
+            <div class="chat" id="ph-chat">
+              <div class="bub them" style="font-size:12px">Sending all of them now</div>
+            </div>
+            <div class="composer"><i></i><b></b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg class="wave-edge" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true"><path id="edge" d="M0 60 Q 360 20 720 50 T 1440 40 V90 H0Z"/></svg>
+</section>
+
+<div class="promise" aria-hidden="true">
+  <div class="track">
+    <span>No internet</span><span>No cloud</span><span>No account</span><span>No file size limit</span><span>Free and open source</span><span>English and বাংলা</span>
+    <span>No internet</span><span>No cloud</span><span>No account</span><span>No file size limit</span><span>Free and open source</span><span>English and বাংলা</span>
+  </div>
+</div>
+
+<!-- ================= HOW ================= -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2>Pair once. Then just send.</h2>
+      <p class="lede muted">Setting up takes a minute, and you only ever do it once per person. After that, DropMate finds them by itself whenever you're both on the same Wi-Fi.</p>
+    </div>
+    <div class="steps">
+      <div class="step rv">
+        <div class="n">1</div>
+        <h3>Install it on your devices</h3>
+        <p>The Windows installer for PCs and laptops, the APK for Android phones. No sign-up, no phone number, no email.</p>
+        <div class="viz"><div class="dl-viz"><div class="dev pc"><img src="assets/icon.png" alt=""></div><div class="dev ph2"><img src="assets/icon.png" alt=""></div></div></div>
+      </div>
+      <div class="step rv d1">
+        <div class="n">2</div>
+        <h3>Pair by matching emojis</h3>
+        <p>One device shows a QR code, the other scans it. If the four emojis match on both screens, you're paired, and no one else can step in between.</p>
+        <div class="viz"><div class="emoji-pair">
+          <div class="emoji-screen"><span style="animation-delay:.2s">🦋</span><span style="animation-delay:.45s">🍉</span><span style="animation-delay:.7s">🚲</span><span style="animation-delay:.95s">🌙</span></div>
+          <div class="emoji-match"><svg><use href="#i-check"/></svg></div>
+          <div class="emoji-screen"><span style="animation-delay:.3s">🦋</span><span style="animation-delay:.55s">🍉</span><span style="animation-delay:.8s">🚲</span><span style="animation-delay:1.05s">🌙</span></div>
+        </div></div>
+      </div>
+      <div class="step rv d2">
+        <div class="n">3</div>
+        <h3>Chat and send</h3>
+        <p>Open their chat and send a message, a photo, a whole folder. It goes straight to their device at Wi-Fi speed, and they accept with one tap.</p>
+        <div class="viz"><div class="send-viz" id="sendviz"><div class="d a"><svg><use href="#i-laptop"/></svg></div><div class="f"></div><div class="d b"><svg><use href="#i-phone"/></svg></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section class="sec" id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2>Everything a family chat needs. Nothing leaves the house.</h2>
+      <p class="lede muted">DropMate knows people, not just devices. Your laptop and your phones are all "you", so whatever someone sends you reaches the device you're holding, and your history follows you.</p>
+    </div>
+
+    <div class="feat">
+      <div class="feat-text rv">
+        <h3>A chat with each person</h3>
+        <p>Messages, files and photos live in one timeline per person, the way you're used to from any messenger, except it all stays on your Wi-Fi.</p>
+        <ul>
+          <li>Ticks show when a message is waiting, when it's received, and when they've seen it.</li>
+          <li>Messages to someone who's out wait and go the moment they're back home.</li>
+          <li>Search every chat for a message or a file name.</li>
+        </ul>
+      </div>
+      <div class="stage rv d1" id="chatstage">
+        <div class="chat-demo" id="chatdemo">
+          <div class="bub them">Is the charger in your room?</div>
+          <div class="bub me">Checking<span class="ticks"><svg><use href="#i-checks"/></svg></span></div>
+          <div class="bub them">Also send me the bill PDF 🙏</div>
+          <div class="bub me">Here you go<span class="ticks"><svg><use href="#i-checks"/></svg></span></div>
+          <div class="seen-note">Seen</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat flip">
+      <div class="feat-text rv">
+        <h3>Photos show as photos</h3>
+        <p>Tap the gallery button, pick as many photos and videos as you like, and send. They arrive as pictures in the chat, not as file names.</p>
+        <ul>
+          <li>Tap a picture to open it full screen, then swipe through every photo in that chat.</li>
+          <li>Pinch to zoom. Videos open in your video player.</li>
+          <li>Full quality, every time. Nothing is compressed on the way.</li>
+        </ul>
+      </div>
+      <div class="stage rv d1">
+        <div class="gal" id="gal">
+          <div class="gal-grid">
+            <div class="ph p1" style="animation-delay:.05s"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+            <div class="ph p2" style="animation-delay:.12s"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+            <div class="ph p3" style="animation-delay:.19s"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+            <div class="ph p4" style="animation-delay:.26s"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+            <div class="ph p2" style="animation-delay:.33s"><i class="sun"></i><i class="hill b"></i></div>
+            <div class="ph p1" style="animation-delay:.4s"><i class="hill"></i><i class="hill b"></i><span class="more">+42</span></div>
+          </div>
+          <div class="viewer" id="viewer">
+            <div class="count" id="vcount">1 of 48</div>
+            <div class="big ph p2" id="vbig"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+            <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat">
+      <div class="feat-text rv">
+        <h3>Buzz: find a phone, or call someone downstairs</h3>
+        <p>Press Buzz in a chat and their phone rings at full volume, even on silent, for up to 30 seconds. They see who's looking for them and a big Stop button.</p>
+        <ul>
+          <li>In the chat with your own devices, the same button rings your own phone. That's find my phone, with no account and no internet.</li>
+          <li>Only people you've paired with can buzz you, and blocked contacts can't.</li>
+        </ul>
+      </div>
+      <div class="stage rv d1" id="buzzstage">
+        <div class="buzz">
+          <div style="position:relative">
+            <div class="waves-out"><i></i><i></i><i></i></div>
+            <div class="buzz-phone"><div class="sc"><div class="big-av">M</div><b>Mom is buzzing you</b><span class="stop">Stop</span></div></div>
+          </div>
+          <div class="buzz-label">Ringing on silent<span class="vol"><i></i><i></i><i></i><i></i></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feat flip">
+      <div class="feat-text rv">
+        <h3>All your devices are you</h3>
+        <p>Link your laptop and your phones once. They share your chats, contacts and settings, and keep each other up to date whenever they're home together.</p>
+        <ul>
+          <li>Move files between your own devices without accepting anything.</li>
+          <li>Received a movie on the laptop? Fetch it to your phone from the chat.</li>
+          <li>When someone sends you a file, every one of your devices rings, and the first to accept gets it.</li>
+        </ul>
+      </div>
+      <div class="stage rv d1">
+        <div class="mesh" id="mesh">
+          <svg class="lines" viewBox="0 0 380 304" preserveAspectRatio="none">
+            <path id="m1" d="M190 70 L 70 230"/><path id="m2" d="M190 70 L 310 230"/><path id="m3" d="M70 230 L 310 230"/>
+          </svg>
+          <div class="node lap" style="left:50%;top:23%"><div class="box"><svg><use href="#i-laptop"/></svg></div>Laptop</div>
+          <div class="node ph3" style="left:18.4%;top:75.6%"><div class="box"><svg><use href="#i-phone"/></svg></div>Phone</div>
+          <div class="node ph3" style="left:81.6%;top:75.6%"><div class="box"><svg><use href="#i-phone"/></svg></div>Old phone</div>
+          <i class="syncdot" style="offset-path:path('M190 70 L 70 230');left:0;top:0"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="mini-grid">
+      <div class="mini rv"><h3><svg aria-hidden="true"><use href="#i-hand"/></svg>You decide what arrives</h3><p>Every file asks first. If you and a person both agree, files from them up to a size you pick come straight in. Apps and scripts always ask.</p></div>
+      <div class="mini rv d1"><h3><svg aria-hidden="true"><use href="#i-moon"/></svg>Receives while you sleep</h3><p>On Android, files arrive with the app closed and the phone locked. On Windows, DropMate waits quietly in the tray.</p></div>
+      <div class="mini rv d2"><h3><svg aria-hidden="true"><use href="#i-folder"/></svg>Send from anywhere</h3><p>Drag files onto someone's name, paste with Ctrl+V, right-click in Explorer, or use Share in any Android app. Whole folders keep their structure.</p></div>
+      <div class="mini rv d3"><h3><svg aria-hidden="true"><use href="#i-lang"/></svg>English and বাংলা</h3><p>Switch the language in Settings. Light and dark themes, and calmer motion when your device asks for it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SPEED ================= -->
+<section class="sec dark" id="speed">
+  <div class="wrap speed-grid">
+    <div class="rv">
+      <h2 style="color:#fff">Fast because nothing is in the way.</h2>
+      <p class="lede muted" style="margin-top:18px">Cloud apps upload your file to a server and download it again. DropMate sends it once, straight across your Wi-Fi, so a phone-sized video takes seconds and a full movie takes minutes.</p>
+      <div class="stats" id="stats">
+        <div class="stat"><b data-to="4">0</b><span>MB chunks, each checked with SHA-256</span></div>
+        <div class="stat"><b data-to="6">0</b><span>chunks travelling at once</span></div>
+        <div class="stat"><b data-to="0" data-from="9">9</b><span>servers between you and them</span></div>
+        <div class="stat"><b>∞</b><span>file size. Stops? It resumes where it left off</span></div>
+      </div>
+    </div>
+    <div class="rv d1">
+      <div class="chunks" id="chunks"></div>
+      <div class="chunk-legend"><span>Family-trip.mp4</span><span><b id="chunk-pct">0%</b> · <span id="chunk-speed">0 MB/s</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRIVACY ================= -->
+<section class="sec" id="privacy">
+  <div class="wrap priv-grid">
+    <div class="rv" id="house-wrap">
+      <svg class="house" viewBox="0 0 520 400" role="img" aria-label="Devices inside a house talk to each other; the cloud outside is crossed out">
+        <path class="tried" d="M390 150 C 430 110, 440 90, 445 70"/>
+        <g transform="translate(440 50)">
+          <path class="cloud" d="M-38 22h76a20 20 0 003-39.7A30 30 0 00-17-24a22 22 0 00-21 46z"/>
+          <path class="blocked" d="M-22 -22 L 22 22"/>
+        </g>
+        <path class="roof" d="M40 180 L 220 60 L 400 180"/>
+        <rect class="wall" x="70" y="170" width="300" height="200" rx="12"/>
+        <g class="wifi" transform="translate(220 250)"><path d="M-48 -14a68 68 0 0196 0"/><path d="M-30 4a42 42 0 0160 0"/><path d="M-13 21a18 18 0 0126 0"/></g>
+        <path class="link" d="M130 320 C 170 290, 270 290, 310 320"/>
+        <rect class="dev" x="98" y="300" width="64" height="44" rx="6"/>
+        <rect class="dev" x="296" y="292" width="30" height="56" rx="7"/>
+      </svg>
+    </div>
+    <div>
+      <h2 class="rv">Private because there's nowhere else for it to go.</h2>
+      <p class="lede muted rv" style="margin-top:18px">There is no DropMate server. Your photos, messages and files go from your device to theirs and nowhere else.</p>
+      <div class="priv-list">
+        <div class="priv-item rv"><div class="ic"><svg><use href="#i-cloud-off"/></svg></div><div><h3>No internet, no account</h3><p>DropMate never connects to the internet and sends no data about you anywhere. It works with your router unplugged from the internet.</p></div></div>
+        <div class="priv-item rv d1"><div class="ic"><svg><use href="#i-key"/></svg></div><div><h3>Only people you paired with</h3><p>Each device has its own key. After pairing, DropMate only talks to devices it knows, so a stranger on the same Wi-Fi can't send you anything.</p></div></div>
+        <div class="priv-item rv d2"><div class="ic"><svg><use href="#i-lock"/></svg></div><div><h3>Encrypted on your Wi-Fi too</h3><p>Everything travels over TLS to a certificate pinned when you paired, and every request is signed, so no one else on the network can read it.</p></div></div>
+        <div class="priv-item rv d3"><div class="ic"><svg><use href="#i-shield"/></svg></div><div><h3>Open for anyone to check</h3><p>Every line of DropMate is public on GitHub under the Apache 2.0 licence.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOWNLOAD ================= -->
+<section class="sec dark dl" id="download">
+  <div class="wrap">
+    <h2 class="rv">Get DropMate</h2>
+    <p class="lede rv">Free, with no ads and no account. Install it on every device you want to share between. <span id="ver-note">Version 1.1.0.</span></p>
+    <div class="dl-cards">
+      <a class="dl-card rv" id="dl-win" href="https://github.com/iamshihab2020/DropMate/releases/latest">
+        <div class="water"></div>
+        <h3><svg aria-hidden="true"><use href="#i-windows"/></svg>Windows</h3>
+        <p>Windows 10 or 11, 64-bit. Laptops and desktops.</p>
+        <div class="file"><svg><use href="#i-down"/></svg><span data-file="windows-setup.exe">DropMate-1.1.0-windows-setup.exe</span></div>
+      </a>
+      <a class="dl-card rv d1" id="dl-and" href="https://github.com/iamshihab2020/DropMate/releases/latest">
+        <div class="water"></div>
+        <h3><svg aria-hidden="true"><use href="#i-android"/></svg>Android</h3>
+        <p>Android 8 or newer. Phones and tablets.</p>
+        <div class="file"><svg><use href="#i-down"/></svg><span data-file="android.apk">DropMate-1.1.0-android.apk</span></div>
+      </a>
+    </div>
+    <p class="dl-more rv">Older 32-bit phone? Get <a id="dl-old" href="https://github.com/iamshihab2020/DropMate/releases/latest"><span data-file="android-older-phones.apk">DropMate-1.1.0-android-older-phones.apk</span></a>. Check your download with <a id="dl-sums" href="https://github.com/iamshihab2020/DropMate/releases/latest">SHA256SUMS.txt</a>, or see <a href="https://github.com/iamshihab2020/DropMate/releases">every release</a>.</p>
+    <div class="install">
+      <div class="rv"><h3>Installing on Windows</h3><ol>
+        <li>Run the installer.</li>
+        <li>If Windows says the publisher is unknown, choose <b>More info</b>, then <b>Run anyway</b>. The installer isn't code-signed yet.</li>
+        <li>DropMate opens and lives in the tray.</li>
+      </ol></div>
+      <div class="rv d1"><h3>Installing on Android</h3><ol>
+        <li>Open the APK on the phone.</li>
+        <li>When Android asks, allow your browser or Files app to <b>install unknown apps</b>, then tap <b>Install</b>.</li>
+        <li>Allow notifications and background use, so files arrive with the app closed.</li>
+      </ol></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head rv"><h2>Questions</h2></div>
+    <div class="faq">
+      <details class="rv"><summary>Does DropMate use my mobile data or internet?</summary><div class="a"><p>No. Everything goes over your local Wi-Fi, device to device. DropMate works even when your router isn't connected to the internet at all.</p></div></details>
+      <details class="rv"><summary>Do both devices have to be on the same Wi-Fi?</summary><div class="a"><p>Yes. That's the point: DropMate is for the people in the same home or office. Messages to someone who's away wait and are delivered when they're back on the same Wi-Fi.</p><p>Guest networks often stop devices from seeing each other ("client isolation"). DropMate tells you when it suspects this, and a phone hotspot works as a fallback.</p></div></details>
+      <details class="rv"><summary>How fast is it?</summary><div class="a"><p>As fast as your Wi-Fi allows between the two devices. Files move in 4 MB chunks, six at a time, and a finished transfer shows exactly how long it took and its average speed, for example "1.2 GB in 38 s · 32 MB/s".</p></div></details>
+      <details class="rv"><summary>Is there a file size limit?</summary><div class="a"><p>No. Send a 50 GB movie if your disk has room. If the Wi-Fi drops or someone walks out of range, the transfer pauses and continues from the same chunk when they're back.</p></div></details>
+      <details class="rv"><summary>Can I send from PC to PC, or phone to phone?</summary><div class="a"><p>Yes, in every direction: PC to phone, phone to PC, PC to PC and phone to phone. Phones work with the laptop switched off.</p></div></details>
+      <details class="rv"><summary>Where do received files go?</summary><div class="a"><p>On Android, into <b>Download/DropMate</b>, where your gallery and file manager can see them. On Windows, into <b>Downloads\DropMate</b>, or a folder you choose per person.</p></div></details>
+      <details class="rv"><summary>Why does Android or Windows warn me when I install it?</summary><div class="a"><p>DropMate isn't on the Play Store, and the Windows installer isn't code-signed yet, so both systems ask you to confirm. The code is open on GitHub, and every release lists SHA-256 checksums so you can check your download is the real one.</p></div></details>
+      <details class="rv"><summary>What about iPhone and Mac?</summary><div class="a"><p>Not yet. DropMate runs on Windows 10 and 11 and on Android 8 or newer.</p></div></details>
+      <details class="rv"><summary>Is it really free?</summary><div class="a"><p>Yes. No ads, no subscription, no account. It's open source under the Apache 2.0 licence.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OPEN SOURCE ================= -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="oss rv">
+      <div>
+        <h2 style="font-size:clamp(30px,3.8vw,44px)">Built in the open</h2>
+        <p>DropMate is one Flutter codebase for Windows and Android, with an HTTPS server on every device, Ed25519-signed requests and end-to-end tests that pair three devices and send files between them. Bug reports, ideas and pull requests are welcome.</p>
+        <div class="btns">
+          <a class="btn btn-primary" href="https://github.com/iamshihab2020/DropMate"><svg><use href="#i-github"/></svg>Star on GitHub</a>
+          <a class="btn btn-ghost" href="https://github.com/iamshihab2020/DropMate/issues">Report a bug</a>
+        </div>
+      </div>
+      <pre class="code" aria-label="Build commands"><span class="c"># build it yourself</span>
+<span class="k">git</span> clone https://github.com/iamshihab2020/DropMate
+<span class="k">cd</span> DropMate
+<span class="k">flutter</span> pub get
+<span class="k">flutter</span> test
+<span class="k">flutter</span> run -d windows</pre>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="dark">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/icon.png" alt="">DropMate</a>
+    <nav aria-label="Project links">
+      <a href="https://github.com/iamshihab2020/DropMate">GitHub</a>
+      <a href="https://github.com/iamshihab2020/DropMate/releases">Releases</a>
+      <a href="https://github.com/iamshihab2020/DropMate/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/iamshihab2020/DropMate/blob/main/SECURITY.md">Security</a>
+      <a href="https://github.com/iamshihab2020/DropMate/blob/main/LICENSE">Apache 2.0</a>
+    </nav>
+    <small>Made by <a href="https://github.com/iamshihab2020" style="color:var(--on-dark)">Sheikh Shihab Hossain</a>.</small>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  /* nav background after scrolling */
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 30);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  /* reveal on scroll; demos start when their section is visible */
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); e.target.dispatchEvent(new Event('enter')); io.unobserve(e.target); }
+  }), { threshold: .18 });
+  document.querySelectorAll('.rv, .step, .stage, #house-wrap, #stats, #chunks').forEach(el => io.observe(el));
+  const once = (el, fn) => el.addEventListener('enter', fn, { once: true });
+
+  /* ---------- the liquid fill (same idea as the app's file cards) ---------- */
+  class Water {
+    constructor(host, { color = '#00C9B1', opacity = .55 } = {}) {
+      this.level = 0; this.target = 0; this.t = Math.random() * 10;
+      this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      this.svg.setAttribute('viewBox', '0 0 100 100'); this.svg.setAttribute('preserveAspectRatio', 'none');
+      this.svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%';
+      this.back = document.createElementNS(this.svg.namespaceURI, 'path');
+      this.front = document.createElementNS(this.svg.namespaceURI, 'path');
+      this.back.setAttribute('fill', color); this.back.setAttribute('opacity', opacity * .55);
+      this.front.setAttribute('fill', color); this.front.setAttribute('opacity', opacity);
+      this.svg.append(this.back, this.front); host.prepend(this.svg);
+      Water.all.push(this);
+    }
+    path(phase, amp) {
+      const y = 100 - this.level * 104 + (this.level > .995 ? -6 : 0);
+      let d = `M0 ${y}`;
+      for (let x = 0; x <= 100; x += 5) d += ` L${x} ${y + Math.sin(x / 100 * Math.PI * 2 + phase) * amp}`;
+      return d + ' L100 100 L0 100 Z';
+    }
+    tick(dt) {
+      this.level += (this.target - this.level) * Math.min(1, dt * 4);
+      this.t += dt;
+      const amp = this.level < .01 || this.level > .99 ? 0 : 3.2;
+      this.front.setAttribute('d', this.path(this.t * 3.2, amp));
+      this.back.setAttribute('d', this.path(this.t * 2.1 + 1.6, amp * 1.2));
+    }
+  }
+  Water.all = [];
+  let last = performance.now();
+  const frame = now => { const dt = Math.min(.05, (now - last) / 1000); last = now; Water.all.forEach(w => w.tick(dt)); requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
+
+  /* download cards fill with water on hover */
+  document.querySelectorAll('.dl-card').forEach(c => {
+    const w = new Water(c.querySelector('.water'), { opacity: .35 });
+    w.target = .12;
+    c.addEventListener('mouseenter', () => w.target = .62);
+    c.addEventListener('mouseleave', () => w.target = .12);
+    c.addEventListener('focus', () => w.target = .62);
+    c.addEventListener('blur', () => w.target = .12);
+  });
+
+  /* ---------- hero scene ---------- */
+  const scene = $('#scene'), box = scene.parentElement;
+  const fit = () => scene.style.transform = `scale(${box.clientWidth / 660})`;
+  addEventListener('resize', fit); fit();
+  scene.classList.add('on');
+
+  const icon = id => `<svg><use href="#${id}"/></svg>`;
+  const cardHTML = mine => `
+    <div class="card ${mine ? '' : 'them'} rise">
+      <div class="water"></div>
+      <div class="row">
+        <div class="ficon">${icon('i-image')}<span class="ok">${icon('i-check')}</span></div>
+        <div><div class="name">Eid 2026</div><div class="meta">1.2 GB · 128 photos</div></div>
+        <div class="pct">0%</div>
+      </div>
+      <div class="status"><span class="st">${mine ? 'Sending' : 'Receiving'}</span>${mine ? `<span class="ticks">${icon('i-checks')}</span>` : ''}</div>
+    </div>`;
+  const photosHTML = `<div class="photos pop">
+      <div class="ph p1"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+      <div class="ph p2"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+      <div class="ph p3"><i class="sun"></i><i class="hill"></i><i class="hill b"></i></div>
+      <div class="ph p4"><i class="sun"></i><i class="hill"></i><span class="more">+124</span></div>
+    </div>`;
+
+  const drops = $('#drops'), arc = $('#arc'), arcLen = arc.getTotalLength();
+  let flying = false;
+  const spawnDrop = () => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('r', 3 + Math.random() * 2.5); drops.append(c);
+    const start = performance.now(), dur = 900 + Math.random() * 300;
+    const step = now => {
+      const k = Math.min(1, (now - start) / dur), p = arc.getPointAtLength(k * arcLen);
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('opacity', k < .1 ? k * 10 : k > .85 ? (1 - k) / .15 : 1);
+      k < 1 ? requestAnimationFrame(step) : c.remove();
+    };
+    requestAnimationFrame(step);
+  };
+  (function rain() { if (flying) spawnDrop(); setTimeout(rain, 110); })();
+
+  async function heroLoop() {
+    const pc = $('#pc-chat'), ph = $('#ph-chat');
+    for (;;) {
+      pc.insertAdjacentHTML('beforeend', cardHTML(true));
+      const pcCard = pc.lastElementChild, pcW = new Water(pcCard.querySelector('.water'));
+      await sleep(500);
+      ph.insertAdjacentHTML('beforeend', cardHTML(false));
+      const phCard = ph.lastElementChild, phW = new Water(phCard.querySelector('.water'));
+      await sleep(400);
+      flying = true;
+      const t0 = performance.now(), D = reduce ? 10 : 4200;
+      await new Promise(done => {
+        const step = now => {
+          const k = Math.min(1, (now - t0) / D), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+          pcW.target = phW.target = e;
+          const pct = Math.round(e * 100) + '%', mb = (30 + Math.sin(now / 300) * 2.4).toFixed(1);
+          pcCard.querySelector('.pct').textContent = phCard.querySelector('.pct').textContent = pct;
+          pcCard.querySelector('.st').textContent = `${mb} MB/s · ${Math.max(0, Math.ceil(38 * (1 - e)))} s left`;
+          phCard.querySelector('.st').textContent = `${mb} MB/s`;
+          k < 1 ? requestAnimationFrame(step) : done();
+        };
+        requestAnimationFrame(step);
+      });
+      flying = false;
+      for (const [c, w, txt] of [[pcCard, pcW, 'Sent · 1.2 GB in 38 s · 32 MB/s'], [phCard, phW, 'Received']]) {
+        c.classList.add('done'); w.target = 0;
+        c.querySelector('.pct').textContent = ''; c.querySelector('.st').textContent = txt;
+      }
+      await sleep(900);
+      phCard.style.transition = 'opacity .35s, transform .35s'; phCard.style.opacity = 0; phCard.style.transform = 'scale(.9)';
+      await sleep(350);
+      phCard.outerHTML = photosHTML;
+      await sleep(1400);
+      pcCard.querySelector('.ticks').classList.add('seen');
+      pcCard.querySelector('.st').textContent = 'Seen · 1.2 GB in 38 s · 32 MB/s';
+      await sleep(3600);
+      for (const el of [pcCard, ph.lastElementChild]) { el.style.transition = 'opacity .5s'; el.style.opacity = 0; }
+      await sleep(550);
+      pcCard.remove(); ph.lastElementChild.remove();
+      Water.all = Water.all.filter(w => w !== pcW && w !== phW);
+      await sleep(500);
+    }
+  }
+  heroLoop();
+
+  /* step 3: little file hop */
+  const sv = $('#sendviz');
+  const setHop = () => sv.style.setProperty('--w', (sv.clientWidth * .76 - 56) + 'px');
+  addEventListener('resize', setHop); setHop();
+
+  /* ---------- chat demo: bubbles arrive, ticks turn Seen ---------- */
+  const chat = $('#chatstage');
+  once(chat, async () => {
+    const items = [...$('#chatdemo').children];
+    for (;;) {
+      items.forEach(b => { b.classList.remove('show'); b.querySelector?.('.ticks')?.classList.remove('seen'); });
+      $('#chatdemo .seen-note').classList.remove('show');
+      for (const b of items.slice(0, 4)) { b.classList.add('show'); await sleep(reduce ? 0 : 900); }
+      await sleep(700);
+      items.forEach(b => b.querySelector?.('.ticks')?.classList.add('seen'));
+      $('#chatdemo .seen-note').classList.add('show');
+      await sleep(3500);
+    }
+  });
+
+  /* ---------- gallery: open viewer, swipe ---------- */
+  const gal = $('#gal');
+  once(gal.closest('.stage'), async () => {
+    const v = $('#viewer'), big = $('#vbig'), dots = [...v.querySelectorAll('.dots i')], cls = ['p2', 'p4', 'p1', 'p3'];
+    for (;;) {
+      await sleep(1800);
+      v.classList.add('open');
+      for (let i = 0; i < 4; i++) {
+        big.className = 'big ph ' + cls[i];
+        dots.forEach((d, j) => d.classList.toggle('on', i === j));
+        $('#vcount').textContent = `${i + 1} of 48`;
+        big.animate([{ transform: 'translateX(40%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: reduce ? 1 : 450, easing: 'cubic-bezier(.2,.8,.2,1)' });
+        await sleep(1300);
+      }
+      v.classList.remove('open');
+    }
+  });
+
+  /* ---------- buzz: ring for a few seconds, then stop ---------- */
+  const bz = $('#buzzstage');
+  once(bz, async () => { for (;;) { bz.classList.add('buzzing'); await sleep(3400); bz.classList.remove('buzzing'); await sleep(1600); } });
+
+  /* ---------- own devices: sync pulses travel along the links ---------- */
+  const mesh = $('#mesh');
+  once(mesh.closest('.stage'), () => {
+    const dot = mesh.querySelector('.syncdot'), paths = ['M190 70 L 70 230', 'M70 230 L 310 230', 'M310 230 L 190 70', 'M190 70 L 310 230', 'M310 230 L 70 230', 'M70 230 L 190 70'];
+    const sx = () => mesh.clientWidth / 380, sy = () => mesh.clientHeight / 304;
+    let i = 0;
+    const go = () => {
+      const p = paths[i++ % paths.length].replace(/(\d+) (\d+)/g, (_, x, y) => `${x * sx()} ${y * sy()}`);
+      dot.style.offsetPath = `path('${p}')`;
+      dot.animate([{ offsetDistance: '0%' }, { offsetDistance: '100%' }], { duration: 1100, easing: 'ease-in-out', fill: 'forwards' }).onfinish = () => setTimeout(go, 250);
+    };
+    go();
+  });
+
+  /* ---------- speed: chunks fill 6 at a time, then tick ---------- */
+  const grid = $('#chunks');
+  const N = 32;
+  for (let i = 0; i < N; i++) grid.insertAdjacentHTML('beforeend', `<div class="chunk">${icon('i-check')}</div>`);
+  const cells = [...grid.children];
+  once(grid, async () => {
+    for (;;) {
+      cells.forEach(c => { c.classList.remove('ok'); c.style.setProperty('--h', '0%'); });
+      let next = 0, done = 0; const live = new Map(); const t0 = performance.now();
+      await new Promise(fin => {
+        const step = now => {
+          while (live.size < 6 && next < N) live.set(next++, 0);
+          for (const [i, v] of live) {
+            const nv = v + (reduce ? 100 : 2.2 + Math.random() * 3.5);
+            if (nv >= 100) { live.delete(i); cells[i].classList.add('ok'); done++; }
+            else { live.set(i, nv); cells[i].style.setProperty('--h', nv + '%'); }
+          }
+          $('#chunk-pct').textContent = Math.round(done / N * 100) + '%';
+          $('#chunk-speed').textContent = (31 + Math.sin(now / 250) * 2.2).toFixed(1) + ' MB/s';
+          done < N ? requestAnimationFrame(step) : fin();
+        };
+        requestAnimationFrame(step);
+      });
+      await sleep(2600);
+    }
+  });
+
+  /* counters */
+  once($('#stats'), () => document.querySelectorAll('.stat b[data-to]').forEach(b => {
+    const from = +(b.dataset.from || 0), to = +b.dataset.to, t0 = performance.now();
+    const step = now => { const k = Math.min(1, (now - t0) / (reduce ? 1 : 1400)); b.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); k < 1 && requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }));
+
+  /* wave edge under the hero breathes */
+  if (!reduce) {
+    const edge = $('#edge');
+    const wave = now => { const a = Math.sin(now / 1400) * 14, b = Math.cos(now / 1700) * 12;
+      edge.setAttribute('d', `M0 ${55 + b} Q 360 ${20 + a} 720 ${50 - b} T 1440 ${40 + a} V90 H0Z`); requestAnimationFrame(wave); };
+    requestAnimationFrame(wave);
+  }
+
+  /* ---------- downloads: latest release from GitHub, right file for this device ---------- */
+  const links = {};
+  fetch('https://api.github.com/repos/iamshihab2020/DropMate/releases/latest')
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(rel => {
+      const v = rel.tag_name.replace(/^v/, '');
+      $('#ver-note').textContent = `Version ${v}.`;
+      for (const a of rel.assets) {
+        for (const suffix of ['windows-setup.exe', 'android-older-phones.apk', 'android.apk']) {
+          if (a.name.endsWith('-' + suffix) && !links[suffix]) links[suffix] = a;
+        }
+        if (a.name === 'SHA256SUMS.txt') $('#dl-sums').href = a.browser_download_url;
+      }
+      const set = (el, suffix) => { const a = links[suffix]; if (a) el.href = a.browser_download_url; };
+      set($('#dl-win'), 'windows-setup.exe'); set($('#dl-and'), 'android.apk'); set($('#dl-old'), 'android-older-phones.apk');
+      document.querySelectorAll('[data-file]').forEach(s => { const a = links[s.dataset.file]; if (a) s.textContent = a.name; });
+      pickHero();
+    })
+    .catch(() => {});
+
+  function pickHero() {
+    const ua = navigator.userAgent, hero = $('#hero-dl');
+    const want = /Android/i.test(ua) ? ['android.apk', 'Download for Android'] : /Windows/i.test(ua) ? ['windows-setup.exe', 'Download for Windows'] : null;
+    if (want && links[want[0]]) { hero.href = links[want[0]].browser_download_url; hero.querySelector('span').textContent = want[1]; }
+  }
+  pickHero();
+})();
+</script>
+</body>
+</html>
