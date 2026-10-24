@@ -141,9 +141,9 @@ object Bridge {
                 a.startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), PICK_FOLDER)
             }
             "pickDirectory" -> result.success(null) // shortcut: Android saves under Download/; SAF trees can't be written with File APIs
-            "stat" -> bg(result) { stat(Uri.parse(call.argument<String>("uri")), null) }
+            "stat" -> bg(result) { stat(othersUri(call.argument<String>("uri")!!), null) }
             "open" -> bg(result) {
-                val pfd = app.contentResolver.openFileDescriptor(Uri.parse(call.argument<String>("uri")), "r")!!
+                val pfd = app.contentResolver.openFileDescriptor(othersUri(call.argument<String>("uri")!!), "r")!!
                 synchronized(handles) {
                     val h = nextHandle++
                     handles[h] = pfd to FileInputStream(pfd.fileDescriptor)
@@ -224,10 +224,11 @@ object Bridge {
         }
         // Only other apps' content; never a file:// path or our own provider, or a caller could
         // borrow DropMate's permissions to read its private files (confused deputy).
-        uris.retainAll(::othersContent)
-        if (uris.isEmpty()) return
+        // Check the re-parsed form: that string is what later gets opened.
+        val safe = uris.map { Uri.parse(it.toString()) }.filter(::othersContent)
+        if (safe.isEmpty()) return
         io.execute {
-            val items = uris.mapNotNull { stat(it, null) }
+            val items = safe.mapNotNull { stat(it, null) }
             main.post {
                 if (sharesReady) channel.invokeMethod("shared", items) else queuedShares.add(items)
             }
@@ -338,7 +339,11 @@ object Bridge {
     }
 
     private fun refUri(ref: String): Uri =
-        if (ref.startsWith("content:")) Uri.parse(ref) else Uri.fromFile(File(ref.removePrefix("file:")))
+        if (ref.startsWith("content:")) othersUri(ref) else Uri.fromFile(File(ref.removePrefix("file:")))
+
+    /** Every content link is checked again right where it is opened, whatever path it came by. */
+    private fun othersUri(s: String): Uri =
+        Uri.parse(s).also { require(othersContent(it)) { "Refused: not another app's content" } }
 
     /** A JPEG at most [px] on its long side, upright, of a photo or a video frame; null if unreadable. */
     private fun thumb(ref: String, px: Int): ByteArray? {
@@ -398,7 +403,7 @@ object Bridge {
     private fun view(path: String, action: String) {
         val content = path.startsWith("content:")
         val f = File(path.removePrefix("file:"))
-        val uri = if (content) Uri.parse(path) else FileProvider.getUriForFile(app, "${app.packageName}.files", f)
+        val uri = if (content) othersUri(path) else FileProvider.getUriForFile(app, "${app.packageName}.files", f)
         val mime = (if (content) app.contentResolver.getType(uri) else null)
             ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(f.extension.lowercase()) ?: "*/*"
         val i = Intent(action).apply {
